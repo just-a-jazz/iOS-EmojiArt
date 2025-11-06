@@ -35,7 +35,7 @@ struct EmojiArt {
             var x: Int
             var y: Int
             
-            static let zero = Position(x: 0, y: 0)
+            static let zero = Self(x: 0, y: 0)
         }
     }
 }
