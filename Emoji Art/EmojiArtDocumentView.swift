@@ -57,7 +57,17 @@ struct EmojiArtDocumentView: View {
     }
     
     private func background(in geometry: GeometryProxy) -> some View {
-        AsyncImage(url: document.background)
+        AsyncImage(url: document.background) { phase in
+            if let image = phase.image {
+                image
+            } else if document.background != nil {
+                if phase.error == nil {
+                    ProgressView()
+                } else {
+                    Text(String(phase.error!.localizedDescription))
+                }
+            }
+        }
             .position(Emoji.Position.zero.in(geometry))
             .onTapGesture {
                 selectedEmojis = []
@@ -72,11 +82,11 @@ struct EmojiArtDocumentView: View {
             .scaleEffect(selectedEmojis.contains(emoji.id) ? gestureZoom : 1)
             .gesture(tap(emoji).simultaneously(with: selectedEmojis.contains(emoji.id) ? emojiPanGesture : nil))
             .position(emoji.position.in(geometry))
-            .contextMenu {
-                AnimatedActionButton("Delete", systemImage: "minus.circle", role: .destructive) {
-                    document.removeEmoji(emoji)
-                }
-            }
+//            .contextMenu {
+//                AnimatedActionButton("Delete", systemImage: "minus.circle", role: .destructive) {
+//                    document.removeEmoji(emoji)
+//                }
+//            }
     }
     
     private func tap(_ emoji: Emoji) -> some Gesture {
