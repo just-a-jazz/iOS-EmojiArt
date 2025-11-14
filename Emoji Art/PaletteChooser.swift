@@ -23,6 +23,7 @@ struct PaletteChooser: View {
             store.activeIndex += 1
         }
         .contextMenu {
+            gotoMenu
             AnimatedActionButton("Delete", systemImage: "minus.circle", role: .destructive) {
                 store.palettes.remove(at: store.activeIndex)
             }
@@ -37,6 +38,21 @@ struct PaletteChooser: View {
         .id(palette.id)
         .transition(.asymmetric(insertion: .rollUp, removal: .rollUp))
         
+    }
+    
+    var gotoMenu: some View {
+        Menu {
+            ForEach(store.palettes) { palette in
+                AnimatedActionButton(palette.name) {
+                    if let index = store.palettes.firstIndex(where: { $0.id == palette.id }) {
+                        store.activeIndex = index
+                    }
+                }
+            }
+            
+        } label: {
+            Label("Go to", systemImage: "text.insert")
+        }
     }
 }
 
