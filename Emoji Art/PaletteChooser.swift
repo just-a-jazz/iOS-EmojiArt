@@ -11,6 +11,7 @@ struct PaletteChooser: View {
     @EnvironmentObject var store: PaletteStore
     
     @State var presentEditor = false
+    @State var presentList = false
     
     var body: some View {
         HStack {
@@ -21,6 +22,12 @@ struct PaletteChooser: View {
         .sheet(isPresented: $presentEditor) {
             PaletteEditor(palette: $store.palettes[store.activeIndex])
                 .font(nil)
+        }
+        .sheet(isPresented: $presentList) {
+            NavigationStack {
+                PaletteList()
+                    .font(nil)
+            }
         }
     }
     
@@ -39,6 +46,9 @@ struct PaletteChooser: View {
             }
             AnimatedActionButton("Edit", systemImage: "pencil") {
                 presentEditor = true
+            }
+            AnimatedActionButton("List", systemImage: "list.bullet.rectangle.portrait") {
+                presentList = true
             }
         }
     }
