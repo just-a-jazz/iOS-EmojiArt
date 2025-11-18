@@ -8,16 +8,25 @@
 import SwiftUI
 
 struct EmojiArtDocumentView: View {
+    @Environment(\.undoManager) var undoManager
+    
     @ObservedObject var document: EmojiArtDocument
+    @StateObject private var paletteStore = PaletteStore(named: "Shared")
+    
+    @ScaledMetric var paletteEmojiSize: CGFloat = 40
     
     var body: some View {
         VStack(spacing: 0) {
             documentBody
             PaletteChooser()
-                .font(.system(size: Constants.paletteEmojiSize))
+                .font(.system(size: paletteEmojiSize))
                 .padding(.horizontal)
                 .scrollIndicators(.hidden)
         }
+        .toolbar {
+            UndoButton()
+        }
+        .environmentObject(paletteStore)
     }
     
     @State private var zoom: CGFloat = 1
@@ -121,7 +130,7 @@ struct EmojiArtDocumentView: View {
             .position(emoji.position.in(geometry))
 //            .contextMenu {
 //                AnimatedActionButton("Delete", systemImage: "minus.circle", role: .destructive) {
-//                    document.removeEmoji(emoji)
+//                    document.removeEmoji(emoji, undoWith: undoManager)
 //                }
 //            }
     }
@@ -144,7 +153,7 @@ struct EmojiArtDocumentView: View {
             }
             .onEnded { endPanOffset in
                 for emoji in selectedEmojis {
-                    document.move(emoji, by: endPanOffset.translation)
+                    document.move(emoji, by: endPanOffset.translation, undoWith: undoManager)
                 }
             }
     }
@@ -159,7 +168,7 @@ struct EmojiArtDocumentView: View {
                     zoom *= endZoomValue
                 } else {
                     for emoji in selectedEmojis {
-                        document.scale(emoji, by: endZoomValue)
+                        document.scale(emoji, by: endZoomValue, undoWith: undoManager)
                     }
                 }
             }
@@ -179,13 +188,14 @@ struct EmojiArtDocumentView: View {
         for sturldata in sturldatas {
             switch sturldata {
             case .url(let url):
-                document.setBackground(url)
+                document.setBackground(url, undoWith: undoManager)
                 return true
             case .string(let emoji):
                 document.addEmoji(
                     emoji,
                     at: emojiPosition(for: location, in: geometry),
-                    withSize: Constants.paletteEmojiSize / zoom)
+                    withSize: paletteEmojiSize / zoom,
+                    undoWith: undoManager)
                 return true
             default:
                 break
@@ -204,7 +214,6 @@ struct EmojiArtDocumentView: View {
     
     // MARK: - Constants
     private struct Constants {
-        static let paletteEmojiSize: CGFloat = 40
         static let selectedEmojiLineWidth = CGFloat(5)
     }
 }

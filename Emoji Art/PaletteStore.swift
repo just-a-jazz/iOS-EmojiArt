@@ -38,8 +38,23 @@ class PaletteStore: ObservableObject {
         }
     }
     
+    @State private var observer: NSObjectProtocol?
+    
     init(named name: String) {
         self.name = name
+        
+        self.observer = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main) { [weak self] _ in
+                self?.objectWillChange.send()
+        }
+    }
+    
+    deinit {
+        if let observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     @Published var _activeIndex = 0

@@ -13,16 +13,17 @@ struct EmojiArt: Codable {
     private(set) var emojis = [Emoji]()
     private var uniqueEmojiId = 0
     
+    init() {}
+    
+    init(json: Data) throws {
+        self = try JSONDecoder().decode(EmojiArt.self, from: json)
+        print("Decoded Emoji Art: \(self)")
+    }
+    
     func json() throws -> Data {
         let data = try JSONEncoder().encode(self)
         print("Encoded Emoji Art: \(String(data: data, encoding: .utf8) ?? "nil")")
         return data
-    }
-    
-    func decode(from data: Data) throws -> EmojiArt {
-        let emojiArt = try JSONDecoder().decode(EmojiArt.self, from: data)
-        print("Decoded Emoji Art: \(emojiArt)")
-        return emojiArt
     }
     
     mutating func addEmoji(_ emoji: String, at position: Emoji.Position, withSize size: Int) {
